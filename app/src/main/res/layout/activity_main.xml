@@ -4,33 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".NativeMapActivity">
+    android:layout_height="wrap_content"
+    >
 
-    <TextView
-        android:id="@+id/tvStateName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textIsSelectable="false"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Hello World!" />
 
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="24dp"
-        android:overScrollMode="never"
-        android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnZoomIn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvStateName" />
     <FrameLayout
         android:id="@+id/webViewOverlay"
         android:layout_width="0dp"
@@ -38,51 +15,52 @@
         android:layout_marginTop="24dp"
         android:overScrollMode="never"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnZoomIn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvStateName"
+        app:layout_constraintTop_toTopOf="parent"
         android:focusableInTouchMode="false"
         android:focusable="false"
         android:clickable="false"
-        />
+        android:visibility="visible"
+        android:descendantFocusability="afterDescendants"
 
-    <EditText
-        android:id="@+id/etSendDataField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:hint="send something..."
-        app:layout_constraintBottom_toTopOf="@+id/btnSendToWeb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btnZoomIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Zoom In"
-        app:layout_constraintBottom_toTopOf="@+id/etSendDataField"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btnZoomOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zoom out"
-        app:layout_constraintBottom_toBottomOf="@+id/btnZoomIn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnZoomIn" />
-
-    <Button
-        android:id="@+id/btnSendToWeb"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Send to Web"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        >
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="24dp"
+            android:overScrollMode="never"
+          />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="end|bottom"
+            android:gravity="end"
+            >
+            <TextView
+                android:id="@+id/btnZoomIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="\u002B"
+                android:padding="16dp"
+                android:textAlignment="center"
+                android:background="@color/white"
+                />
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="4dp"/>
+            <TextView
+                android:id="@+id/btnZoomOut"
+                android:text="\u2212"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:textAlignment="center"
+                android:background="@color/white"/>
+        </LinearLayout>
+    </FrameLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

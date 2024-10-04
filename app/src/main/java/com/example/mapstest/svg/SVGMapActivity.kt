@@ -19,10 +19,10 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.mapstest.R
@@ -31,6 +31,7 @@ import com.sam43.svginteractiondemo.getHTMLBody
 import com.sam43.svginteractiondemo.toast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 class SVGMapActivity : AppCompatActivity() {
 
@@ -45,9 +46,6 @@ class SVGMapActivity : AppCompatActivity() {
     lateinit var webView: WebView
     lateinit var btnZoomIn: View
     lateinit var btnZoomOut: View
-    lateinit var sendToWeb: View
-    lateinit var sendDataField: EditText
-    lateinit var stateName: TextView
     lateinit var overlay: View
 
 
@@ -74,14 +72,28 @@ class SVGMapActivity : AppCompatActivity() {
         webView = findViewById<WebView>(R.id.webView)
         btnZoomIn = findViewById<View>(R.id.btnZoomIn)
         btnZoomOut = findViewById<View>(R.id.btnZoomOut)
-        sendToWeb = findViewById<View>(R.id.btnSendToWeb)
-        sendDataField = findViewById<EditText>(R.id.etSendDataField)
-        stateName = findViewById<TextView>(R.id.tvStateName)
         overlay = findViewById(R.id.webViewOverlay)
         btnZoomIn.setOnClickListener { webView.zoomIn() }
         btnZoomOut.setOnClickListener { webView.zoomOut() }
+//        webView.settings.forceDark = FORCE_DARK_ON
+//        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK_STRATEGY)) {
+//            WebSettingsCompat.setForceDarkStrategy(webView.settings, FORCE_DARK_ON)
+//        }
+//        if (WebViewFeature.isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+//            when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+//                Configuration.UI_MODE_NIGHT_YES -> {
+//                    WebSettingsCompat.setForceDark(webView.settings, FORCE_DARK_ON)
+//                }
+//                Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+//                    WebSettingsCompat.setForceDark(webView.settings, FORCE_DARK_OFF)
+//                }
+//                else -> {
+//                    //
+//                }
+//            }
+//        }
 
-        overlay.setOnTouchListener { a, b ->
+        webView.setOnTouchListener { a, b ->
             if (b.actionMasked == MotionEvent.ACTION_DOWN) {
                 lifecycleScope.launch {
                     delay(200L)
@@ -104,17 +116,17 @@ class SVGMapActivity : AppCompatActivity() {
         }
 
 
-        sendToWeb.setOnClickListener {
-            webView.evaluateJavascript(
-                "javascript: " +
-                        "updateFromAndroid(\"" + sendDataField.text + "\")",
-                object : ValueCallback<String> {
-                    override fun onReceiveValue(p0: String?) {
-                        showToast(p0 ?: "Empty message")
-                    }
-                }
-            )
-        }
+//        sendToWeb.setOnClickListener {
+//            webView.evaluateJavascript(
+//                "javascript: " +
+//                        "updateFromAndroid(\"" + sendDataField.text + "\")",
+//                object : ValueCallback<String> {
+//                    override fun onReceiveValue(p0: String?) {
+//                        showToast(p0 ?: "Empty message")
+//                    }
+//                }
+//            )
+//        }
     }
 
     var popupWindow: PopupWindow? = null
@@ -124,12 +136,12 @@ class SVGMapActivity : AppCompatActivity() {
             popupWindow?.dismiss()
             popupWindow = null
         }
-        if (stateName.text == "undefined" || stateName.text.isNullOrEmpty()) {
+        if (stateName.value == "undefined" || stateName.value.isEmpty()) {
             return
         }
         popupWindow = PopupWindow(this@SVGMapActivity).apply {
             contentView =
-                TextView(this@SVGMapActivity).apply { id = R.id.genView; text = stateName.text }
+                TextView(this@SVGMapActivity).apply { id = R.id.genView; text = stateName.value }
             showAtLocation(a, Gravity.NO_GRAVITY, b.rawX.toInt(), b.rawY.toInt())
         }
     }
@@ -145,27 +157,33 @@ class SVGMapActivity : AppCompatActivity() {
 
     private fun callVM() {
         val url = "https://svgshare.com/i/Gzd.svg"
-        try {
-            fileDownloaderVM.downloadFileFromServer(url)
-                .observe(this) { responseBody ->
-                    val svgString = responseBody.string()
-                    webView.loadDataWithBaseURL(
-                        BASE_URL, getHTMLBody(svgString), "text/html",
-                        "UTF-8", null
-                    )
-                    pd.dismiss()
-                }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
+        lifecycleScope.launch {
+            fileDownloaderVM.readXML(resources.openRawResource(R.raw.usa))?.let {
+                webView.loadDataWithBaseURL(
+                    BASE_URL, getHTMLBody(it), "text/html",
+                    "UTF-8", null
+                )
+            }
+            pd.dismiss()
         }
+//        try {
+//            fileDownloaderVM.downloadFileFromServer(url)
+//                .observe(this) { responseBody ->
+//                    val svgString = responseBody.string()
+//
+//                }
+//
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
     }
+
 
     @SuppressLint("AddJavascriptInterface", "SetJavaScriptEnabled")
     private fun setupWebLayout() {
-        webView.setInitialScale(150)
-        webView.settings.builtInZoomControls = false
-        webView.settings.displayZoomControls = true
+        webView.setInitialScale(90)
+        webView.settings.builtInZoomControls = true
+        webView.settings.displayZoomControls = false
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.addJavascriptInterface(
@@ -181,22 +199,34 @@ class SVGMapActivity : AppCompatActivity() {
     }
 
     private fun injectJavaScriptFunction() {
+        val myNumber = "{ \"code\": \"Code_CA\" }"
         val textToAndroid = "javascript: window.androidObj.textToAndroid = function(message) { " +
                 JAVASCRIPT_OBJ + ".textFromWeb(message) }"
         webView.loadUrl(textToAndroid)
+        webView.evaluateJavascript(
+            "javascript: " +
+                    "initialiseMap(" + myNumber + ")",
+            object : ValueCallback<String> {
+                override fun onReceiveValue(p0: String?) {
+                    showToast(p0 ?: "Empty message")
+                }
+            }
+        )
     }
 
-
+    val stateName = mutableStateOf("")
     inner class JavaScriptInterface {
         @SuppressLint("SetTextI18n")
         @JavascriptInterface
         fun textFromWeb(fromWeb: String) {
             runOnUiThread {
-                stateName.text = fromWeb
+                stateName.value = fromWeb
 
             }
             toast(fromWeb)
         }
+        @JavascriptInterface
+        fun getJSONData(): String = "{ \"code\": \"CODE_CA\" }"
     }
 
     override fun onDestroy() {
@@ -204,3 +234,5 @@ class SVGMapActivity : AppCompatActivity() {
         super.onDestroy()
     }
 }
+
+

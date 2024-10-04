@@ -1,25 +1,16 @@
 window.androidObj = function AndroidClass() {};
 //var selectedlist = [];
-
 var svgBody = document.getElementById('div').innerHTML;
-var nodex = '.default{fill:#e9e9e9;}';
-var democrat = '#00AEF3';
-var republican = 'E81B23'; // custom style class has been injected into the SVG body inside HTML
-var unknown = '#e9e9e9';
-var seed = Math.floor(Math.random() * 10) + 1;
-       var colorstyle
-                    if(seed % 5 ==0){ colorstyle = unknown} else if(seed % 3 == 0) {colorstyle = republican} else {colorstyle = democrat}
-
-var node = `.selected {fill: ${colorstyle};}`; // custom style class has been injected into the SVG body inside HTML
-
+var node = '.selected {fill: #0C75ED;text-color: white}';
+var node1 = '.rep {fill: #FA0000;text-color: white}';// custom style class has been injected into the SVG body inside HTML
+var nodex = '.default{fill:#e9e9e9;text-color: black}';
 var svg = document.getElementsByTagName('svg')[0];
 
 var inner = svg.getElementsByTagName('style')[0].innerHTML;
-var addingValue = nodex + inner + node;
+var addingValue = nodex + inner + node + node1;
 svg.getElementsByTagName('style')[0].innerHTML = addingValue;
 
 document.addEventListener("click", doSomething);
-
 var svgOutput = document.getElementById("div").outerHTML;
 
 var query = '*[id^=Code_]';
@@ -28,8 +19,27 @@ var table;
 for (table = 0; table < tablePathList.length; table++) {
     tablePathList[table].removeAttribute('style');
     if (tablePathList[table].classList.contains('state')) {
-        document.getElementById(tablePathList[table].id).classList.add('selected');
+        document.getElementById(tablePathList[table].id).classList.add('default');
     }
+}
+function initialiseMap(dems) {
+var query = '*[id^=Code_]';
+var tablePathList = document.querySelectorAll(query);
+var table;
+for (table = 0; table < tablePathList.length; table++) {
+console.log(tablePathList[table].id +"==="+ dems["code"])
+    tablePathList[table].removeAttribute('style');
+    if (tablePathList[table].classList.contains('state')) {
+    if(tablePathList[table].id == dems["code"]) {
+        document.getElementById(tablePathList[table].id).classList.add('selected');
+    } else if(tablePathList[table].id == dems["code"]) {
+        document.getElementById(tablePathList[table].id).classList.add('rep');
+    } else {
+        document.getElementById(tablePathList[table].id).classList.add('default');
+
+    }
+    }
+}
 }
 
 function doSomething(e) {
@@ -37,12 +47,17 @@ function doSomething(e) {
         var clickedItem = e.target.id;
         var itemName;
         var item;
-
+        var regex = /\bka\b/i;
         for (item = 0; item < tablePathList.length; item++) {
             if (clickedItem === tablePathList[item].id) {
                 var clickedSvgPath = document.getElementById(clickedItem);
-//                clickedSvgPath.classList.toggle("selected");
+
                 itemName = e.target.querySelector('title').innerHTML;
+//                if(e.target.querySelector('title').innerHTML.search('ka')) {
+//                    clickedSvgPath.classList.toggle("rep");
+//                } else {
+//                clickedSvgPath.classList.toggle("selected");
+//                }
                 /*if (!selectedlist.includes(clickedItem)) {
                     itemName = e.target.querySelector('title').innerHTML;
                     selectedlist.push(clickedItem);
@@ -54,7 +69,7 @@ function doSomething(e) {
                 }*/
             }
         }
-        //console.log("Hello " + clickedItem);
+        console.log("Hello " + itemName);
         window.androidObj.textToAndroid(itemName);
         document.getElementById('l_value').innerHTML = itemName;
     }

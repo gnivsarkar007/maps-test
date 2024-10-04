@@ -9,6 +9,8 @@ package com.sam43.svginteractiondemo
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import okhttp3.OkHttpClient
@@ -78,7 +80,7 @@ interface APIService {
 
 fun Context.toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
 
-fun getHTMLBody(svgString: String) = "<!DOCTYPE HTML>\n" +
+fun getHTMLBody(svgString: String, bgColor: Color = Color.Red) = "<!DOCTYPE HTML>\n" +
         "<html>\n" +
         "\n" +
         "<head>\n" +
@@ -86,12 +88,13 @@ fun getHTMLBody(svgString: String) = "<!DOCTYPE HTML>\n" +
         "    <style>\n" +
         "        body {\n" +
         "            text-align: center;\n" +
+        "            background-color: #${Integer.toHexString(bgColor.toArgb()).drop(2)};\n" +
         "        }\n" +
         "    </style>\n" +
         "</head>\n" +
         "\n" +
         "<body>\n" +
-        "    <h3 id=\"l_value\">WebView</h3>\n" +
+        "    <h3 id=\"l_value\">  </h3>\n" +
         "    <div id=\"div\" class=\"container\">\n" +
         "\t\n" +
         svgString +
